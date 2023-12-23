@@ -8,28 +8,56 @@ import (
 	"time"
 )
 
+// item represents internally a processed item in the production line or stage.
+// It is a generic term that can define a cake, bread in a bakery, or
+// cup or plate in a ceramic factory or a car in the car factory.
 type item int
 
 // Work represents work done at a stage.
 type Work func(d, stddev time.Duration)
+
+// Stage represents an assembly (work) stage in a production line.
+//
+// It can represent a work station where a worker do manual
+// or automated task, or it can be a fully automated stage.
+type Stage struct {
+	Name   string
+	Worker workerFn
+}
+
+type workerFn func(context.Context, <-chan item, chan<- item)
 
 // ProductionLine represents an imaginary production line.
 // Work is done at stages represented by worker functions.
 type ProductionLine struct {
 	Logger  log.Logger
 	Verbose bool
-	Stages  []workerFn
+	Stages  []Stage
 
 	output <-chan item
 	ctx    context.Context
 }
 
-type Stage struct{}
+func NewProductionLine() *ProductionLine {
+	pl := ProductionLine{
+		Verbose: false,
+	}
+	return &pl
+}
 
-type workerFn func(context.Context, <-chan item, chan<- item)
-
+// AddStage takes a string representing stage name, work function representing
+// the work performed at the stage and add it to the production line.
 func (pl *ProductionLine) AddStage(name string, worker workerFn) {
-	pl.Stages = append(pl.Stages, worker)
+	stg := Stage{
+		Name:   name,
+		Worker: worker,
+	}
+	pl.Stages = append(pl.Stages, stg)
+}
+
+// ListStages returns stages added to the production line.
+func (pl *ProductionLine) ListStages() []Stage {
+	return pl.Stages
 }
 
 // Run simulates running all stages of the production line.
@@ -42,7 +70,9 @@ func (pl *ProductionLine) Start() {
 		for {
 			select {
 			case <-ctx.Done():
-				fmt.Println("first stage cancelled!")
+				if pl.Verbose {
+					fmt.Println("first stage cancelled!")
+				}
 				close(ch)
 				return
 			default:
@@ -54,7 +84,7 @@ func (pl *ProductionLine) Start() {
 
 	for _, stage := range pl.Stages {
 		out := make(chan item, 1)
-		go stage(pl.ctx, prev, out)
+		go stage.Worker(pl.ctx, prev, out)
 		prev = out
 	}
 	pl.output = prev
