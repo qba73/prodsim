@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// item represents internally a processed item in the production line or stage.
+// item represents processed item in the production line or stage.
 // It is a generic term that can define a cake, bread in a bakery, or
 // cup or plate in a ceramic factory or a car in the car factory.
 type item int
@@ -38,10 +38,10 @@ type ProductionLine struct {
 	ctx    context.Context
 }
 
+// NewProductionLine returns default production line
+// configured without
 func NewProductionLine() *ProductionLine {
-	pl := ProductionLine{
-		Verbose: false,
-	}
+	pl := ProductionLine{}
 	return &pl
 }
 
@@ -94,11 +94,11 @@ func (pl *ProductionLine) Items() <-chan item {
 	return pl.output
 }
 
-// newDummyStage takes time and standard deviation and returns
+// NewDummyStage takes time and standard deviation and returns
 // a worker function. The worker function represents a chunk
 // of work that takes time (N). The work can be delayed due to some
 // disruptions. Disruptions are represented by deviation.
-func newDummyStage(t, stddev time.Duration) workerFn {
+func NewDummyStage(t, stddev time.Duration) workerFn {
 	return func(ctx context.Context, in <-chan item, out chan<- item) {
 		for item := range in {
 			select {
@@ -127,10 +127,10 @@ func Run() {
 		ctx:     ctx,
 	}
 
-	pl.AddStage("baking", newDummyStage(time.Second, 200*time.Millisecond))
-	pl.AddStage("icing", newDummyStage(time.Second, 200*time.Millisecond))
-	pl.AddStage("inscribing", newDummyStage(time.Second, 200*time.Millisecond))
-	pl.AddStage("packaging", newDummyStage(time.Second, 200*time.Millisecond))
+	pl.AddStage("baking", NewDummyStage(time.Second, 200*time.Millisecond))
+	pl.AddStage("icing", NewDummyStage(time.Second, 200*time.Millisecond))
+	pl.AddStage("inscribing", NewDummyStage(time.Second, 200*time.Millisecond))
+	pl.AddStage("packaging", NewDummyStage(time.Second, 200*time.Millisecond))
 
 	pl.Start()
 
