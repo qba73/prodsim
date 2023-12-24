@@ -1,3 +1,4 @@
+// package prodsim provides functionality for building data flow simulations.
 package prodsim
 
 import (
