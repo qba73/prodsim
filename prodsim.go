@@ -1,4 +1,4 @@
-// package prodsim provides functionality for building data flow simulations.
+// Package prodsim provides functionality for building data flow simulations.
 package prodsim
 
 import (
@@ -127,12 +127,10 @@ func Run() {
 		Verbose: true,
 		ctx:     ctx,
 	}
-
 	pl.AddStage("baking", NewDummyStage(time.Second, 200*time.Millisecond))
 	pl.AddStage("icing", NewDummyStage(time.Second, 200*time.Millisecond))
 	pl.AddStage("inscribing", NewDummyStage(time.Second, 200*time.Millisecond))
 	pl.AddStage("packaging", NewDummyStage(time.Second, 200*time.Millisecond))
-
 	pl.Start()
 
 	for item := range pl.Items() {
