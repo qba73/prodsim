@@ -4,8 +4,9 @@ package prodsim
 import (
 	"context"
 	"fmt"
-	"log"
 	"math/rand"
+	"os"
+	"os/signal"
 	"time"
 )
 
@@ -31,7 +32,6 @@ type workerFn func(context.Context, <-chan item, chan<- item)
 // ProductionLine represents an imaginary production line.
 // Work is done at stages represented by worker functions.
 type ProductionLine struct {
-	Logger  log.Logger
 	Verbose bool
 	Stages  []Stage
 
@@ -85,6 +85,9 @@ func (pl *ProductionLine) Start() {
 
 	for _, stage := range pl.Stages {
 		out := make(chan item, 1)
+		if pl.Verbose {
+			fmt.Printf("Starting stage: %s\n", stage.Name)
+		}
 		go stage.Worker(pl.ctx, prev, out)
 		prev = out
 	}
@@ -118,12 +121,10 @@ func NewDummyStage(t, stddev time.Duration) workerFn {
 }
 
 func Run() {
-	// todo implement various cancellations
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	ctx, shutdown := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer shutdown()
 
 	pl := ProductionLine{
-		Logger:  *log.Default(),
 		Verbose: true,
 		ctx:     ctx,
 	}
