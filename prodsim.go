@@ -24,6 +24,7 @@ type Work func(d, stddev time.Duration)
 // or automated task, or it can be a fully automated stage.
 type Stage struct {
 	Name   string
+	Scale  int
 	Worker workerFn
 }
 
@@ -48,7 +49,7 @@ func NewProductionLine() *ProductionLine {
 
 // AddStage takes a string representing stage name, work function representing
 // the work performed at the stage and add it to the production line.
-func (pl *ProductionLine) AddStage(name string, worker workerFn) {
+func (pl *ProductionLine) AddStage(name string, scale int, worker workerFn) {
 	stg := Stage{
 		Name:   name,
 		Worker: worker,
@@ -88,6 +89,10 @@ func (pl *ProductionLine) Start() {
 		if pl.Verbose {
 			fmt.Printf("Starting stage: %s\n", stage.Name)
 		}
+
+		go func(context.Context, <-chan item, chan<- item) {
+
+		}(pl.ctx, prev, out)
 		go stage.Worker(pl.ctx, prev, out)
 		prev = out
 	}
@@ -128,10 +133,11 @@ func Run() {
 		Verbose: true,
 		ctx:     ctx,
 	}
-	pl.AddStage("baking", NewDummyStage(time.Second, 200*time.Millisecond))
-	pl.AddStage("icing", NewDummyStage(time.Second, 200*time.Millisecond))
-	pl.AddStage("inscribing", NewDummyStage(time.Second, 200*time.Millisecond))
-	pl.AddStage("packaging", NewDummyStage(time.Second, 200*time.Millisecond))
+
+	pl.AddStage("baking", 1, NewDummyStage(time.Second, 200*time.Millisecond))
+	pl.AddStage("icing", 1, NewDummyStage(time.Second, 200*time.Millisecond))
+	pl.AddStage("inscribing", 1, NewDummyStage(time.Second, 200*time.Millisecond))
+	pl.AddStage("packaging", 1, NewDummyStage(time.Second, 200*time.Millisecond))
 	pl.Start()
 
 	for item := range pl.Items() {

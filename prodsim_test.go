@@ -20,7 +20,7 @@ func TestAddStageToProductionLine(t *testing.T) {
 	t.Parallel()
 
 	pl := prodsim.NewProductionLine()
-	pl.AddStage("stage1", prodsim.NewDummyStage(5*time.Second, 500*time.Millisecond))
+	pl.AddStage("stage1", 1, prodsim.NewDummyStage(5*time.Second, 500*time.Millisecond))
 	got := pl.ListStages()
 
 	if len(got) != 1 {
@@ -38,7 +38,7 @@ func TestListStagesInNewEmptyProductionLine(t *testing.T) {
 	t.Parallel()
 
 	pl := prodsim.NewProductionLine()
-	pl.AddStage("stage1", prodsim.NewDummyStage(5*time.Second, 500*time.Millisecond))
+	pl.AddStage("stage1", 1, prodsim.NewDummyStage(5*time.Second, 500*time.Millisecond))
 	got := pl.ListStages()
 
 	if len(got) != 1 {
@@ -57,9 +57,9 @@ func TestAddMultipleStagesToProductionLine(t *testing.T) {
 
 	pl := prodsim.NewProductionLine()
 
-	pl.AddStage("stage1", prodsim.NewDummyStage(5*time.Second, 500*time.Millisecond))
-	pl.AddStage("stage2", prodsim.NewDummyStage(5*time.Second, 500*time.Millisecond))
-	pl.AddStage("stage3", prodsim.NewDummyStage(5*time.Second, 500*time.Millisecond))
+	pl.AddStage("stage1", 1, prodsim.NewDummyStage(5*time.Second, 500*time.Millisecond))
+	pl.AddStage("stage2", 1, prodsim.NewDummyStage(5*time.Second, 500*time.Millisecond))
+	pl.AddStage("stage3", 1, prodsim.NewDummyStage(5*time.Second, 500*time.Millisecond))
 
 	got := pl.ListStages()
 
