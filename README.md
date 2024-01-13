@@ -4,4 +4,4 @@
 
 
 # prodsim
-Prodsim is a Go package for simulating and modelling production line processes.
+`prodsim` is a Go package for simulating and modelling production line processes.
